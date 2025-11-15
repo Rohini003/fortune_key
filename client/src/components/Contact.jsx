@@ -31,12 +31,12 @@ const ContactPage = () => {
         formData
       );
 
-      setSuccess(res.data.message || "Message sent successfully!");
+      setSuccess(res.data.msg || "Message sent successfully!");
       setFormData({ name: "", email: "", phone: "", message: "" });
     } catch (err) {
       console.error(err);
-      if (err.response && err.response.data && err.response.data.error) {
-        setError(err.response.data.error);
+      if (err.response && err.response.data && err.response.data.msg) {
+        setError(err.response.data.msg);
       } else {
         setError("Error sending message. Please try again.");
       }
