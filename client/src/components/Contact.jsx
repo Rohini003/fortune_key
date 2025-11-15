@@ -12,6 +12,7 @@ const ContactPage = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const [warning, setWarning] = useState(""); // ✅ new warning for email fail
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,16 +24,22 @@ const ContactPage = () => {
     setLoading(true);
     setSuccess("");
     setError("");
+    setWarning("");
 
     try {
-      // ✅ Use VITE_API_URL from .env
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/contact`,
         formData
       );
 
-      setSuccess(res.data.msg || "Message sent successfully!");
+      // Backend always returns msg for MongoDB save
+      setSuccess(res.data.msg || "Message saved successfully!");
       setFormData({ name: "", email: "", phone: "", message: "" });
+
+      // Optional: if backend sends email warning
+      if (res.data.emailError) {
+        setWarning("⚠ Email could not be sent. Data saved in database.");
+      }
     } catch (err) {
       console.error(err);
       if (err.response && err.response.data && err.response.data.msg) {
@@ -50,6 +57,7 @@ const ContactPage = () => {
       <div className="contact-card">
         <h2>Contact Us</h2>
         {success && <p className="success-msg">{success}</p>}
+        {warning && <p className="warning-msg">{warning}</p>} {/* new warning */}
         {error && <p className="error-msg">{error}</p>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">

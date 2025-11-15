@@ -17,30 +17,37 @@ router.post("/", async (req, res) => {
     const newContact = new Contact({ name, email, phone, message });
     await newContact.save();
 
-    // 2️⃣ Send email notification
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+    // 2️⃣ Try sending email (optional)
+    try {
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
 
-    const mailOptions = {
-      from: email,
-      to: process.env.EMAIL_RECEIVER,
-      subject: `New Contact Form Submission from ${name}`,
-      html: `<p><strong>Name:</strong> ${name}</p>
-             <p><strong>Email:</strong> ${email}</p>
-             <p><strong>Phone:</strong> ${phone}</p>
-             <p><strong>Message:</strong> ${message}</p>`,
-    };
+      const mailOptions = {
+        from: email,
+        to: process.env.EMAIL_RECEIVER,
+        subject: `New Contact Form Submission from ${name}`,
+        html: `<p><strong>Name:</strong> ${name}</p>
+               <p><strong>Email:</strong> ${email}</p>
+               <p><strong>Phone:</strong> ${phone}</p>
+               <p><strong>Message:</strong> ${message}</p>`,
+      };
 
-    await transporter.sendMail(mailOptions);
+      await transporter.sendMail(mailOptions);
+      console.log("Email sent successfully");
+    } catch (emailErr) {
+      console.error("Email sending failed:", emailErr.message);
+      // ⚠️ Don't throw error → still respond to frontend
+    }
 
+    // 3️⃣ Always respond to frontend
     res.status(200).json({ msg: "Message sent successfully!" });
   } catch (err) {
-    console.error(err);
+    console.error("Server error:", err.message);
     res.status(500).json({ msg: "Server error" });
   }
 });
