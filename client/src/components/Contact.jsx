@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios"; // ✅ import axios
+import axios from "axios";
 import "./ContactPage.css";
 
 const ContactPage = () => {
@@ -11,7 +11,7 @@ const ContactPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
-  const [error, setError] = useState(""); // ✅ to show backend error
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,16 +23,18 @@ const ContactPage = () => {
     setLoading(true);
     setSuccess("");
     setError("");
+
     try {
+      // ✅ Use VITE_API_URL from .env
       const res = await axios.post(
-        "https://fortune-key-backend.onrender.com/api/contact",
+        `${import.meta.env.VITE_API_URL}/api/contact`,
         formData
       );
-      setSuccess(res.data.message);
+
+      setSuccess(res.data.message || "Message sent successfully!");
       setFormData({ name: "", email: "", phone: "", message: "" });
     } catch (err) {
       console.error(err);
-      // ✅ Show backend error if available
       if (err.response && err.response.data && err.response.data.error) {
         setError(err.response.data.error);
       } else {
@@ -48,7 +50,7 @@ const ContactPage = () => {
       <div className="contact-card">
         <h2>Contact Us</h2>
         {success && <p className="success-msg">{success}</p>}
-        {error && <p className="error-msg">{error}</p>} {/* show errors */}
+        {error && <p className="error-msg">{error}</p>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Name</label>
